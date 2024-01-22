@@ -1,3 +1,10 @@
+/**
+ * Author: Khaled Alam <khaledalam.net@gmail.com>
+ * Created: 22nd Jan 2023
+ * 
+ * Description: C++ CLI application to search package.json dependencies in given directories.
+*/
+
 #include <iostream>
 #include <filesystem>
 #include <fstream>

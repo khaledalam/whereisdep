@@ -48,15 +48,6 @@ void parsePackageFile(const string &packageFilePath)
         // Read the contents of the file into a JSON object
         file >> packageJson;
 
-        // Extract information from the JSON object
-        string name = packageJson["name"];
-        string version = packageJson["version"];
-        string description = packageJson["description"];
-
-        // Print the extracted information
-        cout << "Package Name: " << name << endl;
-        cout << "Version: " << version << endl;
-        cout << "Description: " << description << endl;
     }
     catch (const exception &e)
     {
@@ -102,7 +93,7 @@ void parseOptions(int &argc, char *argv[], string &packageJsonFilePath, string &
 
     if (searchDir.empty())
     {
-        cout << "Search Files Path is required." << endl;
+        cout << "Searching Path is required." << endl;
         exit(1);
     }
 }

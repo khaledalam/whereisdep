@@ -9,6 +9,6 @@
 
 ##### ext: `".js", ".jsx"`
 
-```shell
-g++ -std=c++17 whereisdep.cpp && ./a.out --packageJsonFilePath="/Users/khaledalam/.../package.json" --searchDir="/Users/khaledalam/.../resources"
+```bash
+g++ -std=c++17 whereisdep.cpp -o whereisdep && ./whereisdep --packageJsonFilePath="/Users/khaledalam/Desktop/.../package.json" --searchDir="/Users/khaledalam/Desktop/.../resources"
 ```

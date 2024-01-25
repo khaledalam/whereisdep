@@ -4,9 +4,11 @@
 ####  C++ CLI application to search package.json dependencies in given directories.
 
 
-<img src="./whereisdep.png" width="600">
+<img src="./screenshots/whereisdep.png" width="600">
 
-<img src="./whereisdep_colored.png" width="600">
+<img src="./screenshots/whereisdep_colored.png" width="600">
+
+<img src="./screenshots/whereisdep_unused_packages.png" width="600">
 
 
 ##### Run:

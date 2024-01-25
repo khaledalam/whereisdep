@@ -10,14 +10,13 @@ buildandrun: whereisdep.cpp
 			-s ./examples/simple-react-app
 
 install: whereisdep.cpp
-	.build
+	make build
 	cp ./whereisdep /usr/local/bin/whereisdep
 
 run: whereisdep.cpp
 	./whereisdep \
 		-p ./examples/simple-react-app/package.json \
 		-s ./examples/simple-react-app
-		
 		
 dev: whereisdep.cpp
 	make build

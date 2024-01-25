@@ -24,6 +24,7 @@ using json = nlohmann::json;
 
 string packageJsonFilePath, searchDir, extentions;
 const string version = "1.0.0";
+vector<string> notUsedPackages;
 
 json packageJson;
 struct FileLine {
@@ -189,6 +190,7 @@ void processPackages(const string &key) {
 	int founds = 0;
 	try {
 		for (auto &item : packageJson[key].items()) {
+			bool isPackageUsed = false;
 			for (pair<const string, vector<FileLine>> &file : targetFilesPaths) {
 				// file.second => lines of content vector
 				bool fileOk = true;
@@ -197,8 +199,8 @@ void processPackages(const string &key) {
 					auto findValue = line.content.find(item.key());
 
 					if (findValue != string::npos) {
-						cout << "Package \"" << item.key()
-								<< "\" Found at file: " << line.path << endl;
+						cout << "Package \"" << item.key() << "\" found at: "
+								<< line.path << endl;
 						cout << "Content: ";
 
 						string trimedContent = trimStringView(line.content);
@@ -210,6 +212,7 @@ void processPackages(const string &key) {
 								<< "---------\n";
 
 						fileOk = false;
+						isPackageUsed = true;
 						founds++;
 						break;
 					}
@@ -218,6 +221,9 @@ void processPackages(const string &key) {
 				if (!fileOk) {
 					break;
 				}
+			}
+			if (!isPackageUsed) {
+				notUsedPackages.push_back(item.key());
 			}
 		}
 	} catch (const exception e) {
@@ -239,6 +245,11 @@ int main(int argc, char *argv[]) {
 	for (auto &key : keys) {
 		cout << key << ":\n";
 		processPackages(key);
+	}
+
+	cout << "\nNot Used Packages:\n";
+	for (auto &it : notUsedPackages) {
+		cout << it << endl;
 	}
 
 	return 0;

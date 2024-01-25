@@ -15,6 +15,8 @@
 #include "json.hpp"
 #include <getopt.h>
 #include <sstream>
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace std;
 
@@ -121,9 +123,25 @@ void searchPackageUsage(const string &text, ifstream &file) {
 	}
 }
 
-string_view trimStringView(string_view str) {
+void coloringSubString(string &original, string &subString) {
+
+	int findValue = original.find(subString);
+
+	for (int i = 0; i < (int) original.size(); i++) {
+		if (i >= findValue && i < findValue + subString.length()) {
+			cout << "\x1b[42m";
+		} else {
+			cout << "\x1b[0m";
+		}
+		cout << original[i];
+
+	}
+
+}
+
+string trimStringView(string str) {
 	auto start = str.find_first_not_of(" \t\n\r\f\v");
-	if (start == string_view::npos) {
+	if (start == string::npos) {
 		return "";
 	}
 
@@ -176,11 +194,18 @@ void processPackages(const string &key) {
 				bool fileOk = true;
 
 				for (FileLine &line : file.second) {
-					if (line.content.find(item.key()) != string::npos) {
+					auto findValue = line.content.find(item.key());
+
+					if (findValue != string::npos) {
 						cout << "Package \"" << item.key()
 								<< "\" Found at file: " << line.path << endl;
-						cout << "Content: " << trimStringView(line.content)
-								<< endl;
+						cout << "Content: ";
+
+						string trimedContent = trimStringView(line.content);
+						string key = item.key();
+
+						coloringSubString(trimedContent, key);
+
 						cout << "Line: " << line.number << endl
 								<< "---------\n";
 
@@ -199,7 +224,7 @@ void processPackages(const string &key) {
 
 	}
 
-	cout << "\n[" << founds << "] Founds!\n\n";
+	cout << "\n[" << founds << "] used packages founds!\n\n";
 }
 
 int main(int argc, char *argv[]) {

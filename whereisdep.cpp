@@ -3,6 +3,8 @@
  * Created: 22nd Jan 2023
  *
  * Description: C++ CLI application to search package.json dependencies in given directories.
+ *
+ * Version: 1.0.0
  */
 
 #include <iostream>
@@ -14,197 +16,205 @@
 #include <getopt.h>
 #include <sstream>
 
-
 using namespace std;
 
 using json = nlohmann::json;
 
+string packageJsonFilePath, searchDir, extentions;
+const string version = "1.0.0";
 
-string packageJsonFilePath, searchDir;
 json packageJson;
 struct FileLine {
-    int number;
-    string content;
-    string path;
+	int number;
+	string content;
+	string path;
 };
 
 map<string, vector<FileLine>> targetFilesPaths;
 
 // Filter JavaScript Files
-string exts[] = {".js", ".jsx"};
+string exts[] = { ".js", ".jsx" };
 
-void parsePackageFile(const string &packageFilePath)
-{
-    try
-    {
-        ifstream file(packageFilePath);
+void parsePackageFile(const string &packageFilePath) {
+	try {
+		ifstream file(packageFilePath);
 
-        if (!file.is_open())
-        {
-            cerr << "Error: Unable to open package.json file" << endl;
-            exit(1);
-        }
+		if (!file.is_open()) {
+			cerr << "Error: Unable to open package.json file" << endl;
+			exit(1);
+		}
 
-        // Read the contents of the file into a JSON object
-        file >> packageJson;
+		// Read the contents of the file into a JSON object
+		file >> packageJson;
 
-    }
-    catch (const exception &e)
-    {
-        cerr << "Error: " << e.what() << endl;
-        exit(1);
-    }
+	} catch (const exception &e) {
+		cerr << "Error: " << e.what() << endl;
+		exit(1);
+	}
 }
 
-void parseOptions(int &argc, char *argv[], string &packageJsonFilePath, string &searchDir)
-{
-    const char *short_options = "hp:s:";
-    const option long_options[] = {
-        {"help", no_argument, nullptr, 'h'},
-        {"packageJsonFilePath", required_argument, nullptr, 'p'},
-        {"searchDir", required_argument, nullptr, 's'},
-        {nullptr, 0, nullptr, 0}};
+void helpMessage() {
 
-    int option;
-
-    while ((option = getopt_long(argc, argv, short_options, long_options, nullptr)) != -1)
-    {
-        switch (option)
-        {
-        case 'h':
-            cout << "Help message..." << endl;
-            exit(1);
-        case 'p':
-            packageJsonFilePath = optarg;
-            break;
-        case 's':
-            searchDir = optarg;
-            break;
-        default:
-            return;
-        }
-    }
-
-    if (packageJsonFilePath.empty())
-    {
-        cout << "package.json file path is required." << endl;
-        exit(1);
-    }
-
-    if (searchDir.empty())
-    {
-        cout << "Searching Path is required." << endl;
-        exit(1);
-    }
+	cout
+			<< "whereisdep\nC++ CLI application to search package.json dependencies in given directories.\n\nAllowed options:\n\n"
+			<< "-h | --help\tDisplay this help menu\n"
+			<< "-p | --packageJsonFilePath\tSet the path of the package.json file\n"
+			<< "-v | --version\tGet the version of the tool\n"
+			<< "-s | --searchDir\tSet the searching directory of JS files\n"
+			<< "-e | --extensions\tSet the target search files extensions\n\n";
 }
 
-void searchPackageUsage(const string &text, ifstream &file)
-{
-    string line;
-    int lineNumber = 0;
+void parseOptions(int &argc, char *argv[], string &packageJsonFilePath,
+		string &searchDir) {
+	const char *short_options = "hvp:s:e:";
+	const option long_options[] = { { "help", no_argument, nullptr, 'h' }, {
+			"version", no_argument, nullptr, 'v' }, { "packageJsonFilePath",
+			required_argument, nullptr, 'p' }, { "searchDir", required_argument,
+			nullptr, 's' }, { "extensions", required_argument, nullptr, 'e' }, {
+			nullptr, 0, nullptr, 0 } };
 
-    while (getline(file, line))
-    {
-        lineNumber++;
-        size_t pos = line.find(text);
-        if (pos != string::npos)
-        {
-            cout << "Found in line " << lineNumber << ": " << line << endl;
-        }
-    }
+	int option;
+
+	while ((option = getopt_long(argc, argv, short_options, long_options,
+			nullptr)) != -1) {
+		switch (option) {
+		case 'v':
+			cout << "whereisdep\nVersion: " << version << "\n";
+			exit(0);
+		case 'e':
+			extentions = optarg;
+			exit(1);
+		case 'p':
+			packageJsonFilePath = optarg;
+			break;
+		case 's':
+			searchDir = optarg;
+			break;
+		default:
+		case 'h':
+			helpMessage();
+			exit(0);
+		}
+	}
+
+	if (packageJsonFilePath.empty()) {
+		cout << "package.json file path is required." << endl;
+		exit(1);
+	}
+
+	if (searchDir.empty()) {
+		cout << "Searching Path is required." << endl;
+		exit(1);
+	}
+}
+
+void searchPackageUsage(const string &text, ifstream &file) {
+	string line;
+	int lineNumber = 0;
+
+	while (getline(file, line)) {
+		lineNumber++;
+		size_t pos = line.find(text);
+		if (pos != string::npos) {
+			cout << "Found in line " << lineNumber << ": " << line << endl;
+		}
+	}
 }
 
 string_view trimStringView(string_view str) {
-    auto start = str.find_first_not_of(" \t\n\r\f\v");
-    if (start == string_view::npos) {
-        return "";
-    }
+	auto start = str.find_first_not_of(" \t\n\r\f\v");
+	if (start == string_view::npos) {
+		return "";
+	}
 
-    auto end = str.find_last_not_of(" \t\n\r\f\v");
-    return str.substr(start, end - start + 1);
+	auto end = str.find_last_not_of(" \t\n\r\f\v");
+	return str.substr(start, end - start + 1);
 }
 
-string readFileContent(const string& filePath) {
-    ifstream inputFile(filePath);
-    if (!inputFile.is_open()) {
-        return "";
-    }
+string readFileContent(const string &filePath) {
+	ifstream inputFile(filePath);
+	if (!inputFile.is_open()) {
+		return "";
+	}
 
-    stringstream buffer;
-    buffer << inputFile.rdbuf(); 
-    inputFile.close(); 
+	stringstream buffer;
+	buffer << inputFile.rdbuf();
+	inputFile.close();
 
-    return buffer.str(); 
+	return buffer.str();
 }
 
-void getTargetedFilesByExt(const filesystem::path &directoryPath, const string extensions[])
-{
-    for (const auto &entry : filesystem::recursive_directory_iterator(directoryPath))
-    {
-        bool extWanted = find(extensions, extensions + extensions->size(), entry.path().extension()) != extensions + extensions->size();
+void getTargetedFilesByExt(const filesystem::path &directoryPath,
+		const string extensions[]) {
+	for (const auto &entry : filesystem::recursive_directory_iterator(
+			directoryPath)) {
+		bool extWanted = find(extensions, extensions + extensions->size(),
+				entry.path().extension()) != extensions + extensions->size();
 
-        if (entry.is_regular_file() && extWanted)
-        {
-            vector<FileLine> lines;
-            FileLine line;
-            line.content = readFileContent(entry.path());
-            line.path = entry.path();
-            istringstream iss(line.content);
-            int lineCount = 1;
-            while (lineCount++ && getline(iss, line.content)) {
-                line.number = lineCount;
-                lines.push_back(line);
-            }
-            targetFilesPaths[entry.path()] = lines;
-        }
-    }
+		if (entry.is_regular_file() && extWanted) {
+			vector<FileLine> lines;
+			FileLine line;
+			line.content = readFileContent(entry.path());
+			line.path = entry.path();
+			istringstream iss(line.content);
+			int lineCount = 1;
+			while (lineCount++ && getline(iss, line.content)) {
+				line.number = lineCount;
+				lines.push_back(line);
+			}
+			targetFilesPaths[entry.path()] = lines;
+		}
+	}
 }
-
 
 void processPackages(const string &key) {
-    try{
-        for(auto &item: packageJson[key].items()) {
+	int founds = 0;
+	try {
+		for (auto &item : packageJson[key].items()) {
+			for (pair<const string, vector<FileLine>> &file : targetFilesPaths) {
+				// file.second => lines of content vector
+				bool fileOk = true;
 
-            for(pair<const string, vector<FileLine>> &file: targetFilesPaths) {
+				for (FileLine &line : file.second) {
+					if (line.content.find(item.key()) != string::npos) {
+						cout << "Package \"" << item.key()
+								<< "\" Found at file: " << line.path << endl;
+						cout << "Content: " << trimStringView(line.content)
+								<< endl;
+						cout << "Line: " << line.number << endl
+								<< "---------\n";
 
-                // file.second => lines of content vector
-                bool fileOk = true;
+						fileOk = false;
+						founds++;
+						break;
+					}
+				}
 
-                for(FileLine &line: file.second) {
-                    if (line.content.find(item.key()) != string::npos) {
-                        cout<<"Package \"" << item.key() << "\" Found at file: " << line.path << endl;
-                        cout<<"Content: " << trimStringView(line.content) << endl;
-                        cout<<"Line: " << line.number  << endl << "---------\n";
+				if (!fileOk) {
+					break;
+				}
+			}
+		}
+	} catch (const exception e) {
 
-                        fileOk = false;
-                        break;
-                    }
-                }
+	}
 
-                if (!fileOk) break;
-            }
-        }
-    } catch(const exception e) {
-
-    }
+	cout << "\n[" << founds << "] Founds!\n\n";
 }
 
-int main(int argc, char *argv[])
-{
-    parseOptions(argc, argv, packageJsonFilePath, searchDir);
-    parsePackageFile(packageJsonFilePath);
+int main(int argc, char *argv[]) {
+	parseOptions(argc, argv, packageJsonFilePath, searchDir);
 
-    getTargetedFilesByExt(searchDir, exts);
+	parsePackageFile(packageJsonFilePath);
 
-    cout << "dependencies:\n\n";
+	getTargetedFilesByExt(searchDir, exts);
 
-    processPackages("dependencies");
+	vector < string > keys = { "dependencies", "devDependencies" };
 
-    cout << "\n\t--------------------------------\n\n";
+	for (auto &key : keys) {
+		cout << key << ":\n";
+		processPackages(key);
+	}
 
-    cout << "devDependencies:\n\n";
-
-    processPackages("devDependencies");
-
-    return 0;
+	return 0;
 }

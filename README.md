@@ -18,8 +18,7 @@ Using bin file:
 ```bash
 ./whereisdep \
 	-p ./examples/simple-react-app/package.json \
-	-s ./examples/simple-react-app \
-	-e 
+	-s ./examples/simple-react-app
 ```
 
 ##### [for development] Compile and run:

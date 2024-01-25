@@ -6,6 +6,8 @@
 
 <img src="./whereisdep.png" width="600">
 
+<img src="./whereisdep_colored.png" width="600">
+
 
 ##### Run:
 Using make:
@@ -52,13 +54,13 @@ To use whereisdep globally from any terminal window `$ whereisdep` :
 
 #### TODO
 
-[x] Versioning
-[ ] Coloring match string 
-[ ] Testing
-[ ] CI/CD pipeline
-[ ] Themes
-[ ] Dockerizing
-[ ] Exporting
-[ ] Perform Actions (package by package)
-[ ] Optioning json keys
-[ ] Optioning exclude searching paths
+- [x] Versioning
+- [x] Coloring match substring
+- [ ] Testing
+- [ ] CI/CD pipeline
+- [ ] Themes
+- [ ] Dockerizing
+- [ ] Exporting
+- [ ] Perform Actions (package by package)
+- [ ] Optioning json keys
+- [ ] Optioning exclude searching paths
